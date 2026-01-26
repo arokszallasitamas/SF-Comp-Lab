@@ -23,10 +23,11 @@ c = -30
 
 plt.plot(x, a * x * x + b * x + c)
 plt.plot(x, 0.0 * x)
+#plt.show()
 
-
-x1 = 0
-x3 = -8
+#initialize the starting points of the search
+x1 = 0.2
+x3 = 8.1
 
 # checks if the values are initialized correctly
 if value_of_fx(x1) >= 0:
@@ -45,6 +46,7 @@ print(f"x1: {x1}")
 print(f"x3: {x3}")
 
 plt.plot(x2, a * x2 * x2 + b * x2 + c, 'ro')
+#plt.show()
 nsteps = 1
 
 tol = 0.0001
@@ -63,3 +65,29 @@ plt.plot(x2, a * x2 * x2 + b * x2 + c, 'yo')
 plt.show()
 
 print(nsteps)
+
+tol = 0.1
+listtol = []
+listtollog = []
+listnsteps = []
+for i in range(10):
+    listtol.append(tol)
+    listtollog.append(np.log10(tol))
+    x1 = 0.2
+    x3 = 8.1
+    x2 = 0.5 * (x1 + x3)
+    nsteps = 0
+    while (tol < abs(value_of_fx(x2))):
+        x2 = 0.5 * (x1 + x3)
+        if value_of_fx(x2) > 0:
+            x3 = x2
+        else:
+            x1 = x2
+        nsteps += 1
+    listnsteps.append(nsteps)
+    tol /= 10
+
+plt.plot(listtol, listnsteps)
+plt.show()
+plt.plot(listtollog, listnsteps)
+plt.show()
