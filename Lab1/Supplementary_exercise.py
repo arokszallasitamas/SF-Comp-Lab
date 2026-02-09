@@ -7,60 +7,98 @@ Created on Mon Jan 26 16:26:24 2026
 import numpy as np
 import matplotlib.pylab as plt
 
-def value_of_vq(q1, q2, phi, R):
-    return (q1*q2/(4*np.pi*8.854*10**-12))/(np.abs(2*R*np.sin(phi/2)))
+def V_phi(q1, q2, phi, R):
+    const = q1*q2/(4*np.pi*8.854*10**-12)
+    return const/(np.abs(2*R*np.sin(phi/2)))
 
-def value_of_fq(q1, q2, phi, R):
-    return (q1*q2/(4*np.pi*8.854*10**-12))/(np.abs(2*R*np.sin(phi/2)**2))
+def F_phi(q1, q2, phi, R):
+    const = q1*q2/(4*np.pi*8.854*10**-12)
+    return const/((np.abs(2*R*np.sin(phi/2)))**2)
+
+def dF_phi(q1, q2, phi, R):
+    const = q1*q2/(4*np.pi*8.854*10**-12)
+    return -2*const/((np.abs(2*R*np.sin(phi/2)))**3)
+
+def d2F_phi(q1, q2, phi, R):
+    const = q1*q2/(4*np.pi*8.854*10**-12)
+    return -6*const/((np.abs(2*R*np.sin(phi/2)))**4)
 
 phi = np.arange(-0.3, -np.pi, -0.01)
-plt.plot(phi, value_of_vq(1, 1, phi, 1), 'r')
-plt.plot(phi, value_of_fq(1, 1, phi, 1), 'b')
+plt.plot(phi, V_phi(1, 1, phi, 1), 'r')
+plt.plot(phi, F_phi(1, 1, phi, 1), 'b')
 phi = np.arange(0.3, np.pi, 0.01)
-plt.plot(phi, value_of_vq(1, 1, phi, 1), 'r')
-plt.plot(phi, value_of_fq(1, 1, phi, 1), 'b')
+plt.plot(phi, V_phi(1, 1, phi, 1), 'r')
+plt.plot(phi, F_phi(1, 1, phi, 1), 'b')
 phi = np.arange(-np.pi, np.pi, 0.01)
 plt.plot(phi, 0.0 * phi, 'g')
 plt.show()
 
-#total energy for two charges, if there are two charges the separation is pi
-total_e = value_of_vq(1, 1, np.pi, 1)
-force = -value_of_fq(1, 1, np.pi, 1)
-print(f"The total potential energy for a two charge system with R = 1 m, q1 = 1 C, q2 = 1 C is {total_e} J")
-print(f"The forceacting on each charge with R = 1 m, q1 = 1 C, q2 = 1 C is {force} N")
+print(f"The total energy for two charges for a ring is {V_phi(1, 1, np.pi, 1)} J")
+print(f"The force acting on each charge is {-F_phi(1, 1, np.pi, 1)} N")
 
-#total energy for three charge system
-def total_e_three_charge(q1, q2, q3, phi1, phi2, R):
-    v12 = value_of_vq(q1, q2, phi1, R)
-    v13 = value_of_vq(q1, q3, phi2, R)
-    v23 = value_of_vq(q2, q3, phi2 - phi1, R)
-    return v12 + v13 + v23
+def F_charge1(q1, q2, q3, phi1, phi2, R):
+    delta = phi2 - phi1
+    F1 = F_phi(q1, q2, phi1, R)*np.cos(phi1/2)
+    F2 = F_phi(q2, q3, delta, R)*np.cos(delta/2)
+    return F1-F2
 
-def dv_over_phi1(q1, q2, q3, phi1, phi2, R):
-    return 1/(8*np.pi*8.854*10**-12*R)*(-q1*q2*(np.sin(phi1)/(4*np.abs(np.sin(phi1/2))**3)-q2*q3*(np.sin(phi1-phi2))/(4*np.abs(np.sin((phi2-phi1)/2))**3)))
+def F_charge2(q1, q2, q3, phi1, phi2, R):
+    delta = phi2 - phi1
+    theta = 2*np.pi-phi2
+    F1 = F_phi(q3, q3, delta, R)*np.cos(delta/2)
+    F2 = F_phi(q1, q3, theta, R)*np.cos(theta/2)
+    return F1-F2
 
-def second_der_phi1(q1, q2, q3, phi1, phi2, R):
-    return 1/(8*np.pi*8.854*10**-12*R)*(q1*q2*((np.sin(phi1/2)**2*(np.cos(phi1)+3))/(8*np.abs(np.sin(phi1/2))**5))+q2*q3*(3*np.sin(phi1-phi2)**2-4*np.sin((phi2-phi1)/2)**2*np.cos(phi1-phi2))/(16*np.abs(np.sin((phi2-phi1)/2))**5))
+def dcos(phi, R):
+    return -phi/(2*R**2*np.sqrt(4-phi**2/R**2))
 
-def dv_over_phi2(q1, q2, q3, phi1, phi2, R):
-    return 1/(8*np.pi*8.854*10**-12*R)*(-q1*q3*(np.sin(phi2)/(4*np.abs(np.sin(phi2/2))**3)+q2*q3*(np.sin(phi1-phi2))/(4*np.abs(np.sin((phi2-phi1)/2))**3)))
+def d2cos(phi, R):
+    return -2/((4*R**2-phi**2)*np.sqrt(4-(phi**2/R**2)))
 
-def second_der_phi2(q1, q2, q3, phi1, phi2, R):
-    return 1/(8*np.pi*8.854*10**-12*R)*(q1*q2*((np.sin(phi2/2)**2*(np.cos(phi2)+3))/(8*np.abs(np.sin(phi2/2))**5))+q2*q3*(3*np.sin(phi1-phi2)**2-4*np.sin((phi2-phi1)/2)**2*np.cos(phi1-phi2))/(16*np.abs(np.sin((phi2-phi1)/2))**5))
+def dF_charge1(q1, q2, phi1, phi2, R):
+    #delta = phi2 - phi1
+    dF1 = dF_phi(q1, q2, phi1, R)*np.cos(phi1/2)
+    dF2 = F_phi(q1, q2, phi1, R)*dcos(phi1, R)
+    #dF2_1 = dF_phi(q1, q2, delta, R)*np.cos(delta/2)
+    #dF2_2 = F_phi(q1, q2, delta, R)*dcos(delta)
+    return dF1+dF2
 
+def dF_charge2(q1, q3, phi1, phi2, R):
+    #delta = phi2 - phi1
+    theta = 2*np.pi-phi2
+    #dF1_1 = dF_phi(q1, q2, delta, R)*np.cos(delta/2)
+    #dF1_2 = F_phi(q1, q2, delta, R)*dcos(delta)
+    dF1 = dF_phi(q1, q3, theta, R)*np.cos(theta/2)
+    dF2 = F_phi(q1, q3, theta, R)*dcos(theta, R)
+    return -dF1-dF2
+
+def d2F_charge1(q1, q2, phi1, phi2, R):
+    dF1_1 = d2F_phi(q1, q2, phi1, R)*np.cos(phi1/2)
+    dF1_2 = dF_phi(q1, q2, phi1, R)*dcos(phi1, R)
+    dF2_2 = F_phi(q1, q2, phi1, R)*d2cos(phi1, R)
+    return dF1_1+2*dF1_2+dF2_2
+
+def d2F_charge2(q1, q3, phi1, phi2, R):
+    theta = 2*np.pi-phi2
+    dF1_1 = d2F_phi(q1, q3, theta, R)*np.cos(theta/2)
+    dF1_2 = dF_phi(q1, q3, theta, R)*dcos(theta, R)
+    dF2_2 = F_phi(q1, q3, theta, R)*d2cos(theta, R)
+    return -dF1_1-2*dF1_2-dF2_2
+
+
+
+tol = 100000
 q1 = 1
 q2 = 1
 q3 = 1
-tol = 0.0001
-phi1 = 2*np.pi/3
-phi2 = 4*np.pi/3
-while tol < np.abs(dv_over_phi1(q1, q2, q3, phi1, phi2, 1)):
-    phi1 = phi1 - (dv_over_phi1(q1, q2, q3, phi1, phi2, 1) / second_der_phi1(q1, q2, q3, phi1, phi2, 1))
-    while tol < np.abs(dv_over_phi2(q1, q2, q3, phi1, phi2, 1)):
-        phi2 = phi2 - (dv_over_phi2(q1, q2, q3, phi1, phi2, 1) / second_der_phi2(q1, q2, q3, phi1, phi2, 1))
-    
+phi1 = 2.4
+phi2 = 4
+R = 100
+print(F_charge1(q1, q2, q3, phi1, phi2, R))
+while tol < abs(F_charge1(q1, q2, q3, phi1, phi2, R)):
+    phi1 = phi1-2*np.arcsin(dF_charge1(q1, q2, phi1, phi2, R)/d2F_charge1(q1, q2, phi1, phi2, R)/2*R)
+    while tol < abs(F_charge2(q1, q2, q3, phi1, phi2, R)):
+        phi2 = phi2-2*np.arcsin(dF_charge2(q1, q3, phi1, phi2, R)/d2F_charge2(q1, q3, phi1, phi2, R)/2*R)
+        
 print(phi1)
 print(phi2)
-    
-    
-    

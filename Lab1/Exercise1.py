@@ -19,13 +19,17 @@ import matplotlib.pylab as plt
 x = np.arange(-8.0, 8.0, 0.2)
 args = [1, 1, -30]
 
-plt.plot(x, value_of_fx(x, args))
-plt.plot(x, 0.0 * x)
-#plt.show()
+plt.title("Parabola and x axis")
+plt.plot(x, value_of_fx(x, args), label='x^2 + x - 30')
+plt.plot(x, 0.0 * x, label='x-axis')
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()
 
 #initialize the starting points of the search
 x1 = 0.2
-x3 = 8.1
+x3 = 6.1
 
 # checks if the values are initialized correctly
 if value_of_fx(x1, args) >= 0:
@@ -43,8 +47,14 @@ else:
 print(f"x1: {x1}")
 print(f"x3: {x3}")
 
-plt.plot(x2, value_of_fx(x2, args), 'ro')
-#plt.show()
+plt.title("Initialised point")
+plt.plot(x, value_of_fx(x, args), label='x^2 + x - 30')
+plt.plot(x, 0.0 * x, label='x-axis')
+plt.plot(x2, value_of_fx(x2, args), 'ro', label='initial point')
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('y')
+plt.show()
 nsteps = 1
 
 tol = 0.0001
@@ -59,7 +69,14 @@ while (tol < abs(value_of_fx(x2, args))):
 print(f"x2 after while loop: {x2}")
 print(f"f(x2) after while loop: {value_of_fx(x2, args)}")
 
-plt.plot(x2, value_of_fx(x2, args), 'yo')
+plt.title("Found value")
+plt.plot(x, value_of_fx(x, args))
+plt.plot(x, value_of_fx(x, args), label='x^2 + x - 30')
+plt.plot(x, 0.0 * x, label='x-axis')
+plt.plot(x2, value_of_fx(x2, args), 'yo', label='found point')
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('y')
 plt.show()
 
 print(nsteps)
@@ -85,7 +102,15 @@ for i in range(50):
     listnsteps.append(nsteps)
     tol /= 10
 
-plt.plot(listtol, listnsteps)
+plt.title("Number of steps w.r.t. tolerance")
+plt.plot(listtol, listnsteps, label='nsteps w.r.t tol')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.legend()
 plt.show()
-plt.plot(listtollog, listnsteps)
+plt.title("Number of steps w.r.t. tolarence (log scale)")
+plt.plot(listtollog, listnsteps, label='nsteps w.r.t tol')
+plt.xlabel('log(x)')
+plt.ylabel('y')
+plt.legend()
 plt.show()
